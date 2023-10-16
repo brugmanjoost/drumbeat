@@ -1,0 +1,33 @@
+{
+  "name": "drumbeat",
+  "version": "0.0.1",
+  "description": "A simple queue / remote worker server.",
+  "author": "Joost Brugman <codingjoost@brugmanholding.com>",
+  "license": "MIT",
+  "keywords": [
+    "remote worker",
+    "queue"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "jest"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.19",
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.8.6",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "mysql2": "^3.6.2"
+  }
+}
