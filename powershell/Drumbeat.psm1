@@ -1,6 +1,6 @@
 $script:DrumbeatUrl = $null
-$script:DrumbeatAccessToken=$null
-$script:DrumbeatQueue=$null
+$script:DrumbeatAccessToken = $null
+$script:DrumbeatQueue = $null
 
 #####################################################################################################################################################
 ##
@@ -12,19 +12,19 @@ $script:DrumbeatQueue=$null
 function Connect-Drumbeat {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$Url,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$AccessToken,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Queue = $null
     )
 
-    $script:DrumbeatUrl         = $Url
+    $script:DrumbeatUrl = $Url
     $script:DrumbeatAccessToken = $AccessToken
-    $script:DrumbeatQueue       = $Queue
+    $script:DrumbeatQueue = $Queue
 }
 
 #####################################################################################################################################################
@@ -36,7 +36,7 @@ function Connect-Drumbeat {
 #####################################################################################################################################################
 function Get-DrumbeatHeaders {
     return @{
-        Authorization=("Bearer " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(($script:DrumbeatAccessToken))))
+        Authorization = ("Bearer " + [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(($script:DrumbeatAccessToken))))
     }
 }
 
@@ -50,27 +50,27 @@ function Get-DrumbeatHeaders {
 function Get-DrumbeatUrl {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Queue = $null,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [Nullable[int]]$Id = $null
     )
 
-    if(!$script:DrumbeatUrl) {
+    if (!$script:DrumbeatUrl) {
         throw New-Object System.Exception("Not connected to a Drumbeat server. Use Connect-Drumbeat to connect.")
     }
     $Url = $script:DrumbeatUrl
 
-    if([string]::IsNullOrEmpty($Queue)) {
+    if ([string]::IsNullOrEmpty($Queue)) {
         $Queue = $script:DrumbeatQueue
     }
-    if([string]::IsNullOrEmpty($Queue)) {
+    if ([string]::IsNullOrEmpty($Queue)) {
         throw New-Object System.Exception("No queue specified and no default queue specified during Connect-Drumbeat.")
     }
     $Url = "$Url/$Queue"
     
-    if($Id -ne $null) {
+    if ($Id -ne $null) {
         $Url = "$Url/$Id"
     }
 
@@ -87,19 +87,19 @@ function Get-DrumbeatUrl {
 function Create-DrumbeatMessage {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Queue = $null,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$Subject,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [object]$requestBody = $null
     )
 
-    $Url        = Get-DrumbeatUrl -Queue $Queue
-    $jsonBody   = @{ subject = $Subject; requestBody = $requestBody } | ConvertTo-Json
-    $response   = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Post -Body $jsonBody -ContentType "application/json"
+    $Url = Get-DrumbeatUrl -Queue $Queue
+    $jsonBody = @{ subject = $Subject; requestBody = $requestBody } | ConvertTo-Json
+    $response = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Post -Body $jsonBody -ContentType "application/json"
 
     return $response.data
 }
@@ -114,27 +114,27 @@ function Create-DrumbeatMessage {
 function Get-DrumbeatMessage {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Queue = $null,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [Nullable[int]]$Id = $null,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet('pending', 'cancelled', 'completed', 'failed')]
         [string]$Status
     )
 
-    $Url        = Get-DrumbeatUrl -Queue $Queue -Id $Id
+    $Url = Get-DrumbeatUrl -Queue $Queue -Id $Id
 
-    if($Status) {
-        if($Id) {
+    if ($Status) {
+        if ($Id) {
             throw New-Object System.Exception("Cannot set Status if Id is set.")
         }
         $Url = "$($Url)?status=$Status"
     }
 
-    $response   = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Get
+    $response = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Get
 
     return $response.data
 }
@@ -149,16 +149,16 @@ function Get-DrumbeatMessage {
 function Cancel-DrumbeatMessage {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Queue = $null,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [int]$id
     )
 
-    $Url        = Get-DrumbeatUrl -Queue $Queue -Id $Id
-    $Url        = "$Url/cancel"
-    $response   = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Patch
+    $Url = Get-DrumbeatUrl -Queue $Queue -Id $Id
+    $Url = "$Url/cancel"
+    $response = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Patch
 
     return $response.data
 }
@@ -173,15 +173,15 @@ function Cancel-DrumbeatMessage {
 function Delete-DrumbeatMessage {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Queue = $null,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [int]$id
     )
 
-    $Url        = Get-DrumbeatUrl -Queue $Queue -Id $Id
-    $response   = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Delete
+    $Url = Get-DrumbeatUrl -Queue $Queue -Id $Id
+    $response = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Delete
 
     return $response.data
 }
@@ -196,24 +196,24 @@ function Delete-DrumbeatMessage {
 function Respond-DrumbeatMessage {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Queue = $null,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [int]$Id,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [ValidateSet('completed', 'failed')]
         [string]$Status,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [object]$responseBody = $null
     )
 
-    $Url        = Get-DrumbeatUrl -Queue $Queue -Id $Id
-    $Url        = "$Url/postback"
-    $jsonBody   = @{ status = $status; responseBody = $responseBody } | ConvertTo-Json
-    $response   = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Patch -Body $jsonBody -ContentType "application/json"
+    $Url = Get-DrumbeatUrl -Queue $Queue -Id $Id
+    $Url = "$Url/postback"
+    $jsonBody = @{ status = $status; responseBody = $responseBody } | ConvertTo-Json
+    $response = Invoke-RestMethod -Headers (Get-DrumbeatHeaders) -Uri $url -Method Patch -Body $jsonBody -ContentType "application/json"
 
     return $response.data
 }
@@ -223,4 +223,4 @@ function Respond-DrumbeatMessage {
 ## Exports
 ##
 #####################################################################################################################################################
-Export-ModuleMember -Function Connect-Drumbeat, Create-DrumbeatMessage, Get-DrumbeatMessage, Cancel-DrumbeatMessage, Delete-DrumbeatMessage, Respond-DrumbeatMessage, Get-DrumbeatUrl
+Export-ModuleMember -Function Connect-Drumbeat, Create-DrumbeatMessage, Get-DrumbeatMessage, Cancel-DrumbeatMessage, Delete-DrumbeatMessage, Respond-DrumbeatMessage
